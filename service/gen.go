@@ -182,6 +182,10 @@ func (c *Client) {{.Name}}(req {{ .In }}) ({{ .Out }}, error) {
 }
 {{- end }}
 
+func (c *Client) Close() {
+	c.t.Close()
+}
+
 var (
 	typeRegistry = registry.New()
 )
@@ -230,8 +234,8 @@ import (
 func (s *{{.Struct}}) Serve(i interface{}) (interface{}, error) {
   switch req := i.(type) {
   {{- range .Methods }}
-	case {{ .In }}:
-    return s.{{.Name}}(req)
+	case *{{ .In }}:
+    return s.{{.Name}}(*req)
   {{- end }}
 	default:
 		return nil, fmt.Errorf("unknown type %T", req)

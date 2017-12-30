@@ -38,6 +38,10 @@ func (c *Client) Multiply(req dto.MultiplyReq) (dto.MultiplyRsp, error) {
 	return *rsp, nil
 }
 
+func (c *Client) Close() {
+	c.t.Close()
+}
+
 var (
 	typeRegistry = registry.New()
 )
@@ -64,6 +68,8 @@ func ParseError(text string) error {
 	switch text {
 	case dto.ErrOverflow.Error():
 		return dto.ErrOverflow
+	case dto.ErrTransport.Error():
+		return dto.ErrTransport
 	}
 	return errors.New(text)
 }
