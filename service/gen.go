@@ -10,22 +10,75 @@ import (
 	"fmt"
 	"go/importer"
 	"html/template"
-	"log"
 	"os"
+	"os/exec"
+	"path"
 	"reflect"
 	"strings"
 
 	"github.com/ianic/api_code_gen/service"
 )
 
+func Generate(svc interface{}, dtoPkgPath string) error {
+	g := Generator{svc: svc, dtoPkgPath: dtoPkgPath}
+
+	ms, err := g.findMethods()
+	if err != nil {
+		return err
+	}
+	es, err := g.findErrors()
+	if err != nil {
+		return err
+	}
+
+	pkg, stc := g.findNames()
+	g.data = data{
+		Package: pkg,
+		Struct:  stc,
+		Imports: []string{g.dtoPkgPath},
+		Methods: ms,
+		Errors:  es,
+	}
+
+	//os.MkdirAll("api", os.FileMode)
+	//fn := "api_gen.go"
+	//clientTemplate.Execute(os.Stdout, g.data)
+
+	if err := g.execTemplate(clientTemplate, "api/api_gen.go"); err != nil {
+		return err
+	}
+
+	fn := fmt.Sprintf("%s_gen.go", strings.ToLower(stc))
+	if err := g.execTemplate(serverTemplate, fn); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (g *Generator) execTemplate(t *template.Template, fn string) error {
+	os.MkdirAll(path.Dir(fn), os.ModePerm)
+	f, err := os.Create(fn)
+	if err != nil {
+		return err
+	}
+	t.Execute(f, g.data)
+	f.Close()
+	err = exec.Command("go", "fmt", fn).Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 type Generator struct {
 	svc        interface{}
 	dtoPkgPath string
+	data       data
 }
 
-func inspectMethods(i interface{}) ([]method, error) {
-	v := reflect.ValueOf(i)
-	fmt.Println("kind", v.Type().PkgPath())
+func (g *Generator) findMethods() ([]method, error) {
+	v := reflect.ValueOf(g.svc)
 	var ms []method
 	for i := 0; i < v.NumMethod(); i++ {
 		tm := v.Type().Method(i)
@@ -37,6 +90,10 @@ func inspectMethods(i interface{}) ([]method, error) {
 			return nil, fmt.Errorf("unsupported signature for method %s", tm.Name)
 		}
 
+		if tm.Name == "Serve" {
+			// this is generated method
+			continue
+		}
 		ms = append(ms, method{
 			Name: tm.Name,
 			In:   m.Type().In(0).String(),
@@ -46,9 +103,9 @@ func inspectMethods(i interface{}) ([]method, error) {
 	return ms, nil
 }
 
-func findErrors(pkgPath string) ([]string, error) {
+func (g *Generator) findErrors() ([]string, error) {
 	var es []string
-	pkg, err := importer.Default().Import(pkgPath)
+	pkg, err := importer.Default().Import(g.dtoPkgPath)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +117,8 @@ func findErrors(pkgPath string) ([]string, error) {
 	return es, nil
 }
 
-func namesFor(i interface{}) (string, string) {
-	typ := reflect.TypeOf(i).String()
+func (g *Generator) findNames() (string, string) {
+	typ := reflect.TypeOf(g.svc).String()
 	if strings.HasPrefix(typ, "*") {
 		typ = typ[1:]
 	}
@@ -71,31 +128,7 @@ func namesFor(i interface{}) (string, string) {
 }
 
 func main() {
-	dtoPath := "github.com/ianic/api_code_gen/service/dto"
-	svc := &service.Service{}
-
-	ms, err := inspectMethods(svc)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	es, err := findErrors(dtoPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	pkg, stc := namesFor(svc)
-
-	d := data{
-		Package: pkg,
-		Struct:  stc,
-		Imports: []string{dtoPath},
-		Methods: ms,
-		Errors:  es,
-	}
-
-	clientTemplate.Execute(os.Stdout, d)
-	serverTemplate.Execute(os.Stdout, d)
+	Generate(&service.Service{}, "github.com/ianic/api_code_gen/service/dto")
 }
 
 type data struct {
@@ -143,7 +176,7 @@ func NewClient(r transport) *Client {
 func (c *Client) {{.Name}}(req {{ .In }}) ({{ .Out }}, error) {
   rsp := &{{ .Out }}{}
   if err := c.t.Call(req, rsp); err != nil {
-    return nil, err
+    return {{.Out}}{}, err
   }
   return *rsp, nil
 }
@@ -156,7 +189,7 @@ var (
 func init() {
 	typeRegistry.Add([]interface{}{
   {{- range .Methods }}
-		{{ .In }},
+		{{ .In }}{},
   {{- end }}
 	})
 }
@@ -195,9 +228,9 @@ import (
 )
 
 func (s *{{.Struct}}) Serve(i interface{}) (interface{}, error) {
-	switch req := i.(type) {
+  switch req := i.(type) {
   {{- range .Methods }}
-	case *{{ .In }}:
+	case {{ .In }}:
     return s.{{.Name}}(req)
   {{- end }}
 	default:
