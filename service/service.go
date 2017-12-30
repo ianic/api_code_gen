@@ -14,3 +14,11 @@ func (s *Service) Add(req dto.AddReq) (dto.AddRsp, error) {
 	}
 	return dto.AddRsp{Z: req.X + req.Y}, nil
 }
+
+func (s *Service) Multiply(req dto.MultiplyReq) (dto.MultiplyRsp, error) {
+	z := req.X * req.Y
+	if z > 128 {
+		return dto.MultiplyRsp{}, dto.ErrOverflow
+	}
+	return dto.MultiplyRsp{Z: req.X + req.Y}, nil
+}
