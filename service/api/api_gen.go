@@ -22,20 +22,20 @@ func NewClient(r transport) *Client {
 	return &Client{t: r}
 }
 
-func (c *Client) Add(req dto.AddReq) (dto.AddRsp, error) {
+func (c *Client) Add(req dto.AddReq) (*dto.AddRsp, error) {
 	rsp := &dto.AddRsp{}
 	if err := c.t.Call(req, rsp); err != nil {
-		return dto.AddRsp{}, err
+		return nil, err
 	}
-	return *rsp, nil
+	return rsp, nil
 }
 
-func (c *Client) Multiply(req dto.MultiplyReq) (dto.MultiplyRsp, error) {
+func (c *Client) Multiply(req dto.MultiplyReq) (*dto.MultiplyRsp, error) {
 	rsp := &dto.MultiplyRsp{}
 	if err := c.t.Call(req, rsp); err != nil {
-		return dto.MultiplyRsp{}, err
+		return nil, err
 	}
-	return *rsp, nil
+	return rsp, nil
 }
 
 func (c *Client) Close() {
