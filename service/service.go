@@ -27,4 +27,20 @@ func (s *Service) Multiply(req dto.TwoReq) (*dto.OneRsp, error) {
 	return &dto.OneRsp{Z: z}, nil
 }
 
+func (s *Service) Multiply2(req dto.TwoReq) (*int, error) {
+	z := req.X * req.Y
+	if z > 128 {
+		return nil, dto.ErrOverflow
+	}
+	return &z, nil
+}
+
+func (s *Service) Cube(x int) (*int, error) {
+	z := x * x
+	if z > 256 {
+		return nil, dto.ErrOverflow
+	}
+	return &z, nil
+}
+
 func (s *Service) Close() {}

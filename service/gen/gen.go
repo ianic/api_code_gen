@@ -182,7 +182,7 @@ func NewClient(r transport) *Client {
 {{- range .Methods }}
 
 func (c *Client) {{.Name}}(req {{ .In }}) (*{{ .Out }}, error) {
-  rsp := &{{ .Out }}{}
+  rsp := new({{ .Out }})
   if err := c.call("{{.Name}}",req, rsp); err != nil {
     return nil, parseError(err)
   }

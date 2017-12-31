@@ -19,12 +19,32 @@ func (s *Service) Serve(typ string, buf []byte) ([]byte, error) {
 			return nil, err
 		}
 		return json.Marshal(rsp)
+	case "Cube":
+		var req int
+		if err := json.Unmarshal(buf, &req); err != nil {
+			return nil, err
+		}
+		rsp, err := s.Cube(req)
+		if err != nil {
+			return nil, err
+		}
+		return json.Marshal(rsp)
 	case "Multiply":
 		var req dto.TwoReq
 		if err := json.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
 		rsp, err := s.Multiply(req)
+		if err != nil {
+			return nil, err
+		}
+		return json.Marshal(rsp)
+	case "Multiply2":
+		var req dto.TwoReq
+		if err := json.Unmarshal(buf, &req); err != nil {
+			return nil, err
+		}
+		rsp, err := s.Multiply2(req)
 		if err != nil {
 			return nil, err
 		}

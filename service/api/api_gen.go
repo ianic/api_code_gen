@@ -20,16 +20,32 @@ func NewClient(r transport) *Client {
 }
 
 func (c *Client) Add(req dto.TwoReq) (*dto.OneRsp, error) {
-	rsp := &dto.OneRsp{}
+	rsp := new(dto.OneRsp)
 	if err := c.call("Add", req, rsp); err != nil {
 		return nil, parseError(err)
 	}
 	return rsp, nil
 }
 
+func (c *Client) Cube(req int) (*int, error) {
+	rsp := new(int)
+	if err := c.call("Cube", req, rsp); err != nil {
+		return nil, parseError(err)
+	}
+	return rsp, nil
+}
+
 func (c *Client) Multiply(req dto.TwoReq) (*dto.OneRsp, error) {
-	rsp := &dto.OneRsp{}
+	rsp := new(dto.OneRsp)
 	if err := c.call("Multiply", req, rsp); err != nil {
+		return nil, parseError(err)
+	}
+	return rsp, nil
+}
+
+func (c *Client) Multiply2(req dto.TwoReq) (*int, error) {
+	rsp := new(int)
+	if err := c.call("Multiply2", req, rsp); err != nil {
 		return nil, parseError(err)
 	}
 	return rsp, nil

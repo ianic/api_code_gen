@@ -21,6 +21,10 @@ func main() {
 	multiply(2, 3)
 	multiply(64, 3)
 
+	multiply2(4, 3)
+
+	cube(12)
+
 	c.Close()
 }
 
@@ -46,4 +50,28 @@ func multiply(x, y int) {
 		panic(err)
 	}
 	fmt.Printf("%d * %d = %d\n", x, y, rsp.Z)
+}
+
+func multiply2(x, y int) {
+	rsp, err := c.Multiply2(dto.TwoReq{X: x, Y: y})
+	if err == dto.ErrOverflow {
+		fmt.Printf("%d * %d = owerflow\n", x, y)
+		return
+	}
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%d * %d = %d\n", x, y, *rsp)
+}
+
+func cube(x int) {
+	rsp, err := c.Cube(x)
+	if err == dto.ErrOverflow {
+		fmt.Printf("%d^2 = owerflow\n", x)
+		return
+	}
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%d^2 = %d\n", x, *rsp)
 }
