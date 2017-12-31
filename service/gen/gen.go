@@ -11,6 +11,12 @@ import (
 	"strings"
 )
 
+type Generator struct {
+	svc        interface{}
+	dtoPkgPath string
+	data       data
+}
+
 func Generate(svc interface{}, dtoPkgPath string) error {
 	g := Generator{svc: svc, dtoPkgPath: dtoPkgPath}
 
@@ -31,10 +37,6 @@ func Generate(svc interface{}, dtoPkgPath string) error {
 		Methods: ms,
 		Errors:  es,
 	}
-
-	//os.MkdirAll("api", os.FileMode)
-	//fn := "api_gen.go"
-	//clientTemplate.Execute(os.Stdout, g.data)
 
 	if err := g.execTemplate(clientTemplate, "api/api_gen.go"); err != nil {
 		return err
@@ -63,12 +65,6 @@ func (g *Generator) execTemplate(t *template.Template, fn string) error {
 	return nil
 }
 
-type Generator struct {
-	svc        interface{}
-	dtoPkgPath string
-	data       data
-}
-
 func (g *Generator) findMethods() ([]method, error) {
 	v := reflect.ValueOf(g.svc)
 	var ms []method
@@ -76,25 +72,31 @@ func (g *Generator) findMethods() ([]method, error) {
 		tm := v.Type().Method(i)
 
 		if tm.Name == "Serve" {
-			// this is generated method
+			fmt.Printf("skipping generated method %s", tm.Name)
 			continue
 		}
 		m := v.Method(i)
 
 		if m.Type().NumIn() != 1 &&
-			m.Type().NumOut() != 2 &&
-			m.Type().Out(1).String() != "error" {
-			return nil, fmt.Errorf("unsupported signature for method %s", tm.Name)
+			m.Type().NumOut() != 2 {
+			fmt.Printf("skipping method %s, unsupported signature\n", tm.Name)
+			continue
+		}
+		if m.Type().Out(1).String() != "error" {
+			fmt.Printf("skipping method %s, unsupported signature\n", tm.Name)
+			continue
 		}
 
 		in := m.Type().In(0).String()
 		out := m.Type().Out(0).String()
 
 		if isPointer(in) {
-			return nil, fmt.Errorf("input arg must be passed by value, method: %s", tm.Name)
+			fmt.Printf("skipping method %s, input arg must be passed by value\n", tm.Name)
+			continue
 		}
 		if !isPointer(out) {
-			return nil, fmt.Errorf("output arg must be passed by reference, method: %s", tm.Name)
+			fmt.Printf("skipping method %s, output arg must be passed by reference\n", tm.Name)
+			continue
 		}
 
 		ms = append(ms, method{

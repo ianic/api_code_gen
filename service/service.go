@@ -26,3 +26,5 @@ func (s *Service) Multiply(req dto.TwoReq) (*dto.OneRsp, error) {
 	}
 	return &dto.OneRsp{Z: z}, nil
 }
+
+func (s *Service) Close() {}
