@@ -24,6 +24,7 @@ func main() {
 	multiply2(4, 3)
 
 	cube(12)
+	cube(15)
 
 	c.Close()
 }

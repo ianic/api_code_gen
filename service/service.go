@@ -19,6 +19,7 @@ func (s *Service) Add(req dto.TwoReq) (*dto.OneRsp, error) {
 	return &dto.OneRsp{Z: z}, nil
 }
 
+// primjer da dvije metode mogu imati iste atribute
 func (s *Service) Multiply(req dto.TwoReq) (*dto.OneRsp, error) {
 	z := req.X * req.Y
 	if z > 128 {
@@ -27,6 +28,7 @@ func (s *Service) Multiply(req dto.TwoReq) (*dto.OneRsp, error) {
 	return &dto.OneRsp{Z: z}, nil
 }
 
+// primjer kako rezultat moze biti build-in type
 func (s *Service) Multiply2(req dto.TwoReq) (*int, error) {
 	z := req.X * req.Y
 	if z > 128 {
@@ -35,6 +37,7 @@ func (s *Service) Multiply2(req dto.TwoReq) (*int, error) {
 	return &z, nil
 }
 
+// build-in tipovi unutra i van
 func (s *Service) Cube(x int) (*int, error) {
 	z := x * x
 	if z > 256 {
