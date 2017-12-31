@@ -2,17 +2,28 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
+
 	"github.com/ianic/api_code_gen/service/dto"
 )
 
-func (s *Service) Serve(i interface{}) (interface{}, error) {
-	switch req := i.(type) {
-	case *dto.AddReq:
-		return s.Add(*req)
-	case *dto.MultiplyReq:
-		return s.Multiply(*req)
+func (s *Service) Serve(typ string, buf []byte) ([]byte, error) {
+	switch typ {
+	case "Add":
+		var req dto.AddReq
+		if err := json.Unmarshal(buf, &req); err != nil {
+			return nil, err
+		}
+		rsp, err := s.Add(req)
+		if err != nil {
+			return nil, err
+		}
+		return json.Marshal(rsp)
+	case "Multiply":
+		//return s.Multiply(*req)
+		return nil, nil
 	default:
-		return nil, fmt.Errorf("unknown type %T", req)
+		return nil, fmt.Errorf("unknown type %s", typ)
 	}
 }

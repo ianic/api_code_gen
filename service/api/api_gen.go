@@ -2,6 +2,7 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"reflect"
 
@@ -10,7 +11,7 @@ import (
 )
 
 type transport interface {
-	Call(req interface{}, rsp interface{}) error
+	Call(string, []byte) ([]byte, error) // TODO
 	Close()
 }
 
@@ -24,18 +25,35 @@ func NewClient(r transport) *Client {
 
 func (c *Client) Add(req dto.AddReq) (*dto.AddRsp, error) {
 	rsp := &dto.AddRsp{}
-	if err := c.t.Call(req, rsp); err != nil {
-		return nil, err
+	// TODO
+	if err := c.call("Add", req, rsp); err != nil {
+		return nil, parseError(err)
 	}
 	return rsp, nil
 }
 
 func (c *Client) Multiply(req dto.MultiplyReq) (*dto.MultiplyRsp, error) {
 	rsp := &dto.MultiplyRsp{}
-	if err := c.t.Call(req, rsp); err != nil {
+	if err := c.call("multiply", req, rsp); err != nil {
 		return nil, err
 	}
 	return rsp, nil
+}
+
+// TODO dodana funkcija
+func (c *Client) call(typ string, req, rsp interface{}) error {
+	reqBuf, err := json.Marshal(req)
+	if err != nil {
+		return err
+	}
+	rspBuf, err := c.t.Call(typ, reqBuf)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(rspBuf, rsp); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *Client) Close() {
@@ -72,4 +90,18 @@ func ParseError(text string) error {
 		return dto.ErrTransport
 	}
 	return errors.New(text)
+}
+
+// TODO dodano prasiranje gresaka
+func parseError(err error) error {
+	if err == nil {
+		return nil
+	}
+	switch err.Error() {
+	case dto.ErrOverflow.Error():
+		return dto.ErrOverflow
+	case dto.ErrTransport.Error():
+		return dto.ErrTransport
+	}
+	return err
 }

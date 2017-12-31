@@ -4,36 +4,26 @@ import (
 	"time"
 
 	"github.com/ianic/api_code_gen/service/api"
-	"github.com/ianic/api_code_gen/service/dto"
 	"github.com/minus5/svckit/nsq"
 )
 
-var topic = "nsq_rr.req"
+var (
+	topic = "nsq_rr.req"
+	ttl   = 5 * time.Second
+)
 
 func NewClient() *api.Client {
-	rr := nsq.NewRrClient(topic,
-		api.NameFor,
-		nil,
-		5*time.Second,
-		&nsq.ErrorsMapping{
-			Parser:     api.ParseError,
-			ErrStopped: dto.ErrTransport,
-			ErrTimeout: dto.ErrTransport,
-			ErrFatal:   dto.ErrTransport,
-		})
-	c := api.NewClient(rr)
-	return c
+	return api.NewClient(nsq.NewRpcTransport(topic, ttl))
 }
 
 type Closer interface {
 	Close()
 }
 
-type Server interface {
-	Serve(req interface{}) (interface{}, error)
+type server interface {
+	Serve(typ string, req []byte) ([]byte, error)
 }
 
-func NewServer(srv Server) Closer {
-	rr := nsq.NewRrServer(topic, srv, api.TypeFor, nil)
-	return rr
+func NewServer(srv server) Closer {
+	return nsq.RpcServe(topic, srv.Serve)
 }
