@@ -15,11 +15,13 @@ import (
 )
 
 func main() {
-	err := gen.Generate(
-		&service.Service{},
-		"github.com/ianic/api_code_gen/service/dto",
-	)
-	if err != nil {
+	c := gen.Config()
+	c.Service = &service.Service{}
+	c.DtoPkgPath = "github.com/ianic/api_code_gen/service/dto"
+	c.NsqTopic = "nsq_rr.req"
+	c.NsqTtl = 10
+	c.ApiPkgPath = "github.com/ianic/api_code_gen/service/api"
+	if err := gen.Generate(c); err != nil {
 		log.Fatal(err)
 	}
 }
