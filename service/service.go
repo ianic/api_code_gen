@@ -11,18 +11,18 @@ func New() *Service {
 	return &Service{}
 }
 
-func (s *Service) Add(req dto.AddReq) (*dto.AddRsp, error) {
+func (s *Service) Add(req dto.TwoReq) (*dto.OneRsp, error) {
 	z := req.X + req.Y
 	if z > 128 {
 		return nil, dto.ErrOverflow
 	}
-	return &dto.AddRsp{Z: z}, nil
+	return &dto.OneRsp{Z: z}, nil
 }
 
-func (s *Service) Multiply(req dto.MultiplyReq) (*dto.MultiplyRsp, error) {
+func (s *Service) Multiply(req dto.TwoReq) (*dto.OneRsp, error) {
 	z := req.X * req.Y
 	if z > 128 {
 		return nil, dto.ErrOverflow
 	}
-	return &dto.MultiplyRsp{Z: z}, nil
+	return &dto.OneRsp{Z: z}, nil
 }

@@ -3,11 +3,7 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
-	"reflect"
-
 	"github.com/ianic/api_code_gen/service/dto"
-	"github.com/minus5/svckit/types/registry"
 )
 
 type transport interface {
@@ -23,16 +19,16 @@ func NewClient(r transport) *Client {
 	return &Client{t: r}
 }
 
-func (c *Client) Add(req dto.AddReq) (*dto.AddRsp, error) {
-	rsp := &dto.AddRsp{}
+func (c *Client) Add(req dto.TwoReq) (*dto.OneRsp, error) {
+	rsp := &dto.OneRsp{}
 	if err := c.call("Add", req, rsp); err != nil {
 		return nil, parseError(err)
 	}
 	return rsp, nil
 }
 
-func (c *Client) Multiply(req dto.MultiplyReq) (*dto.MultiplyRsp, error) {
-	rsp := &dto.MultiplyRsp{}
+func (c *Client) Multiply(req dto.TwoReq) (*dto.OneRsp, error) {
+	rsp := &dto.OneRsp{}
 	if err := c.call("Multiply", req, rsp); err != nil {
 		return nil, parseError(err)
 	}
@@ -56,38 +52,6 @@ func (c *Client) call(typ string, req, rsp interface{}) error {
 
 func (c *Client) Close() {
 	c.t.Close()
-}
-
-var (
-	typeRegistry = registry.New()
-)
-
-func init() {
-	typeRegistry.Add([]interface{}{
-		dto.AddReq{},
-		dto.MultiplyReq{},
-	})
-}
-
-func NameFor(i interface{}) string {
-	return typeRegistry.NameFor(i)
-}
-
-func TypeFor(typ string) reflect.Type {
-	return typeRegistry.TypeFor(typ)
-}
-
-func ParseError(text string) error {
-	if text == "" {
-		return nil
-	}
-	switch text {
-	case dto.ErrOverflow.Error():
-		return dto.ErrOverflow
-	case dto.ErrTransport.Error():
-		return dto.ErrTransport
-	}
-	return errors.New(text)
 }
 
 func parseError(err error) error {

@@ -10,7 +10,7 @@ import (
 func (s *Service) Serve(typ string, buf []byte) ([]byte, error) {
 	switch typ {
 	case "Add":
-		var req dto.AddReq
+		var req dto.TwoReq
 		if err := json.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
@@ -20,7 +20,7 @@ func (s *Service) Serve(typ string, buf []byte) ([]byte, error) {
 		}
 		return json.Marshal(rsp)
 	case "Multiply":
-		var req dto.MultiplyReq
+		var req dto.TwoReq
 		if err := json.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}

@@ -7,20 +7,11 @@ var (
 	ErrTransport = errors.New("trasnsport error")
 )
 
-type AddReq struct {
+type TwoReq struct {
 	X int
 	Y int
 }
 
-type AddRsp struct {
-	Z int
-}
-
-type MultiplyReq struct {
-	X int
-	Y int
-}
-
-type MultiplyRsp struct {
+type OneRsp struct {
 	Z int
 }
