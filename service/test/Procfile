@@ -1,0 +1,7 @@
+consul:     consul agent -config-file=consul.json
+nsqd:       mkdir -p ./tmp/nsqd; nsqd -lookupd-tcp-address=127.0.0.1:4160 -broadcast-address=127.0.0.1 -data-path=./tmp/nsqd -max-msg-size=10485760
+nsqlookupd: nsqlookupd >> /dev/null
+nsqadmin:   nsqadmin -lookupd-http-address=127.0.0.1:4161  >> /dev/null
+
+request:   nsq_tail -topic=nsq_rr.req -lookupd-http-address=localhost:4161
+response:  nsq_tail -topic=z...rsp.main.node01 -lookupd-http-address=localhost:4161 
