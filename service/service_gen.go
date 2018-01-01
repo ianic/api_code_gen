@@ -4,13 +4,14 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ianic/api_code_gen/service/dto"
+
+	"github.com/ianic/api_code_gen/service/api"
 )
 
 func (s *Service) Serve(typ string, buf []byte) ([]byte, error) {
 	switch typ {
 	case "Add":
-		var req dto.TwoReq
+		var req api.TwoReq
 		if err := json.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
@@ -30,7 +31,7 @@ func (s *Service) Serve(typ string, buf []byte) ([]byte, error) {
 		}
 		return json.Marshal(rsp)
 	case "Multiply":
-		var req dto.TwoReq
+		var req api.TwoReq
 		if err := json.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
@@ -40,7 +41,7 @@ func (s *Service) Serve(typ string, buf []byte) ([]byte, error) {
 		}
 		return json.Marshal(rsp)
 	case "Multiply2":
-		var req dto.TwoReq
+		var req api.TwoReq
 		if err := json.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}

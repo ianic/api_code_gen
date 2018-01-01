@@ -9,16 +9,14 @@ import (
 	"encoding/json"
 	"fmt"
 
-{{- range .Imports }}
-  "{{ . }}"
-{{- end }}
+  "{{.ApiPkgPath}}"
 )
 
 func (s *{{.Struct}}) Serve(typ string, buf []byte) ([]byte, error) {
   switch typ {
   {{- range .Methods }}
 	case "{{.Name}}":
-		var req {{.In}}
+		var req {{.InWithPkg}}
 		if err := json.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}

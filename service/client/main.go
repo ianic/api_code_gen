@@ -5,7 +5,6 @@ import (
 
 	"github.com/ianic/api_code_gen/service/api"
 	"github.com/ianic/api_code_gen/service/api/nsq"
-	"github.com/ianic/api_code_gen/service/dto"
 	"github.com/minus5/svckit/log"
 )
 
@@ -30,8 +29,8 @@ func main() {
 }
 
 func add(x, y int) {
-	rsp, err := c.Add(dto.TwoReq{X: x, Y: y})
-	if err == dto.ErrOverflow {
+	rsp, err := c.Add(api.TwoReq{X: x, Y: y})
+	if err == api.ErrOverflow {
 		fmt.Printf("%d + %d = owerflow\n", x, y)
 		return
 	}
@@ -42,8 +41,8 @@ func add(x, y int) {
 }
 
 func multiply(x, y int) {
-	rsp, err := c.Multiply(dto.TwoReq{X: x, Y: y})
-	if err == dto.ErrOverflow {
+	rsp, err := c.Multiply(api.TwoReq{X: x, Y: y})
+	if err == api.ErrOverflow {
 		fmt.Printf("%d * %d = owerflow\n", x, y)
 		return
 	}
@@ -54,8 +53,8 @@ func multiply(x, y int) {
 }
 
 func multiply2(x, y int) {
-	rsp, err := c.Multiply2(dto.TwoReq{X: x, Y: y})
-	if err == dto.ErrOverflow {
+	rsp, err := c.Multiply2(api.TwoReq{X: x, Y: y})
+	if err == api.ErrOverflow {
 		fmt.Printf("%d * %d = owerflow\n", x, y)
 		return
 	}
@@ -67,7 +66,7 @@ func multiply2(x, y int) {
 
 func cube(x int) {
 	rsp, err := c.Cube(x)
-	if err == dto.ErrOverflow {
+	if err == api.ErrOverflow {
 		fmt.Printf("%d^2 = owerflow\n", x)
 		return
 	}

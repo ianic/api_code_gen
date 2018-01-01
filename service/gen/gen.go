@@ -13,18 +13,16 @@ import (
 
 func Config() config {
 	return config{
-		Service:    nil,
-		DtoPkgPath: "",
-		NsqTopic:   "",
-		NsqTtl:     60,
-		ApiPkgPath: "",
+		NsqTopic:  "",
+		NsqTtl:    60,
+		apiPkgDir: "api",
+		nsqPkgDir: "api/nsq",
 	}
 }
 
 type data struct {
 	Package    string
 	Struct     string
-	Imports    []string
 	Methods    []method
 	Errors     []string
 	NsqTopic   string
@@ -33,17 +31,19 @@ type data struct {
 }
 
 type method struct {
-	Name string
-	In   string
-	Out  string
+	Name      string
+	In        string
+	InWithPkg string
+	Out       string
 }
 
 type config struct {
-	Service    interface{}
-	DtoPkgPath string
+	Type       reflect.Type
 	NsqTopic   string
 	NsqTtl     int
-	ApiPkgPath string
+	apiPkgDir  string
+	nsqPkgDir  string
+	apiPkgPath string
 }
 
 type Generator struct {
@@ -52,6 +52,8 @@ type Generator struct {
 }
 
 func Generate(c config) error {
+	c.apiPkgPath = c.Type.PkgPath() + "/" + c.apiPkgDir
+
 	g := Generator{c: c}
 
 	ms, err := g.findMethods()
@@ -67,19 +69,18 @@ func Generate(c config) error {
 	g.data = data{
 		Package:    pkg,
 		Struct:     stc,
-		Imports:    []string{g.c.DtoPkgPath},
 		Methods:    ms,
 		Errors:     es,
 		NsqTopic:   c.NsqTopic,
 		NsqTtl:     c.NsqTtl,
-		ApiPkgPath: c.ApiPkgPath,
+		ApiPkgPath: c.apiPkgPath,
 	}
 
-	if err := g.execTemplate(clientTemplate, "api/api_gen.go"); err != nil {
+	if err := g.execTemplate(clientTemplate, c.apiPkgDir+"/api_gen.go"); err != nil {
 		return err
 	}
 
-	if err := g.execTemplate(nsqTemplate, "api/nsq/nsq_gen.go"); err != nil {
+	if err := g.execTemplate(nsqTemplate, c.nsqPkgDir+"/nsq_gen.go"); err != nil {
 		return err
 	}
 
@@ -107,7 +108,8 @@ func (g *Generator) execTemplate(t *template.Template, fn string) error {
 }
 
 func (g *Generator) findMethods() ([]method, error) {
-	v := reflect.ValueOf(g.c.Service)
+	//v := reflect.ValueOf(g.c.Service)
+	v := reflect.New(g.c.Type)
 	var ms []method
 	for i := 0; i < v.NumMethod(); i++ {
 		tm := v.Type().Method(i)
@@ -141,9 +143,10 @@ func (g *Generator) findMethods() ([]method, error) {
 		}
 
 		ms = append(ms, method{
-			Name: tm.Name,
-			In:   m.Type().In(0).String(),
-			Out:  removePointerPrefix(out),
+			Name:      tm.Name,
+			InWithPkg: m.Type().In(0).String(),
+			In:        removePackagePrefix(m.Type().In(0).String()),
+			Out:       removePackagePrefix(removePointerPrefix(out)),
 		})
 	}
 	return ms, nil
@@ -160,22 +163,28 @@ func removePointerPrefix(typ string) string {
 	return typ
 }
 
+func removePackagePrefix(typ string) string {
+	p := strings.Split(typ, ".")
+	return p[len(p)-1]
+}
+
 func (g *Generator) findErrors() ([]string, error) {
 	var es []string
-	pkg, err := importer.Default().Import(g.c.DtoPkgPath)
+	pkg, err := importer.Default().Import(g.c.apiPkgPath)
 	if err != nil {
 		return nil, err
 	}
 	for _, n := range pkg.Scope().Names() {
 		if strings.HasPrefix(n, "Err") {
-			es = append(es, fmt.Sprintf("%s.%s", pkg.Name(), n))
+			//es = append(es, fmt.Sprintf("%s.%s", pkg.Name(), n))
+			es = append(es, n)
 		}
 	}
 	return es, nil
 }
 
 func (g *Generator) findNames() (string, string) {
-	typ := reflect.TypeOf(g.c.Service).String()
+	typ := g.c.Type.String()
 	typ = removePointerPrefix(typ)
 	p := strings.Split(typ, ".")
 	// TODO sta ako nije len = 2

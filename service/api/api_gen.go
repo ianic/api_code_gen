@@ -3,7 +3,6 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/ianic/api_code_gen/service/dto"
 )
 
 type transport interface {
@@ -19,8 +18,8 @@ func NewClient(r transport) *Client {
 	return &Client{t: r}
 }
 
-func (c *Client) Add(req dto.TwoReq) (*dto.OneRsp, error) {
-	rsp := new(dto.OneRsp)
+func (c *Client) Add(req TwoReq) (*OneRsp, error) {
+	rsp := new(OneRsp)
 	if err := c.call("Add", req, rsp); err != nil {
 		return nil, parseError(err)
 	}
@@ -35,15 +34,15 @@ func (c *Client) Cube(req int) (*int, error) {
 	return rsp, nil
 }
 
-func (c *Client) Multiply(req dto.TwoReq) (*dto.OneRsp, error) {
-	rsp := new(dto.OneRsp)
+func (c *Client) Multiply(req TwoReq) (*OneRsp, error) {
+	rsp := new(OneRsp)
 	if err := c.call("Multiply", req, rsp); err != nil {
 		return nil, parseError(err)
 	}
 	return rsp, nil
 }
 
-func (c *Client) Multiply2(req dto.TwoReq) (*int, error) {
+func (c *Client) Multiply2(req TwoReq) (*int, error) {
 	rsp := new(int)
 	if err := c.call("Multiply2", req, rsp); err != nil {
 		return nil, parseError(err)
@@ -75,10 +74,10 @@ func parseError(err error) error {
 		return nil
 	}
 	switch err.Error() {
-	case dto.ErrOverflow.Error():
-		return dto.ErrOverflow
-	case dto.ErrTransport.Error():
-		return dto.ErrTransport
+	case ErrOverflow.Error():
+		return ErrOverflow
+	case ErrTransport.Error():
+		return ErrTransport
 	}
 	return err
 }
