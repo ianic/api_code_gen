@@ -51,3 +51,11 @@ func main() {
 //+   ne mora vise ici kao parametar
 
 // commitaj promjene koje si napravio u svckit
+
+// * kako se prosljedjuju informacije u generator
+// * bolji naming Type bi mogao biti ServiceType
+//   sto je client, server, service
+//+ * mogu li izolirati serijalizaciju da je ima samo u api
+//+   da ovi koji su van api zovu Marshall i Unmarshall
+//+ * typ u service_gen zovi methodName
+//+   od toga bi mogao napraviti konstante u api

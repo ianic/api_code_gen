@@ -2,55 +2,54 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/ianic/api_code_gen/service/api"
 )
 
-func (s *Service) Serve(typ string, buf []byte) ([]byte, error) {
-	switch typ {
-	case "Add":
+func (s *Service) Serve(method string, buf []byte) ([]byte, error) {
+	switch method {
+	case api.MethodAdd:
 		var req api.TwoReq
-		if err := json.Unmarshal(buf, &req); err != nil {
+		if err := api.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
 		rsp, err := s.Add(req)
 		if err != nil {
 			return nil, err
 		}
-		return json.Marshal(rsp)
-	case "Cube":
+		return api.Marshal(rsp)
+	case api.MethodCube:
 		var req int
-		if err := json.Unmarshal(buf, &req); err != nil {
+		if err := api.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
 		rsp, err := s.Cube(req)
 		if err != nil {
 			return nil, err
 		}
-		return json.Marshal(rsp)
-	case "Multiply":
+		return api.Marshal(rsp)
+	case api.MethodMultiply:
 		var req api.TwoReq
-		if err := json.Unmarshal(buf, &req); err != nil {
+		if err := api.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
 		rsp, err := s.Multiply(req)
 		if err != nil {
 			return nil, err
 		}
-		return json.Marshal(rsp)
-	case "Multiply2":
+		return api.Marshal(rsp)
+	case api.MethodMultiply2:
 		var req api.TwoReq
-		if err := json.Unmarshal(buf, &req); err != nil {
+		if err := api.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
 		rsp, err := s.Multiply2(req)
 		if err != nil {
 			return nil, err
 		}
-		return json.Marshal(rsp)
+		return api.Marshal(rsp)
 	default:
-		return nil, fmt.Errorf("unknown type %s", typ)
+		return nil, fmt.Errorf("unknown method %s", method)
 	}
 }

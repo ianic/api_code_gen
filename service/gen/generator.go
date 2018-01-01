@@ -11,6 +11,16 @@ import (
 	"strings"
 )
 
+type config struct {
+	ServiceType reflect.Type
+	NsqTopic    string
+	NsqTtl      int
+	apiPkgDir   string
+	nsqPkgDir   string
+	apiPkgPath  string
+}
+
+// Config returns defalut config
 func Config() config {
 	return config{
 		NsqTopic:  "",
@@ -20,6 +30,7 @@ func Config() config {
 	}
 }
 
+// data collects atributes for template execution
 type data struct {
 	Package    string
 	Struct     string
@@ -37,22 +48,15 @@ type method struct {
 	Out       string
 }
 
-type config struct {
-	Type       reflect.Type
-	NsqTopic   string
-	NsqTtl     int
-	apiPkgDir  string
-	nsqPkgDir  string
-	apiPkgPath string
-}
-
+// Generator code generator
 type Generator struct {
 	c    config
 	data data
 }
 
+// Generate run generator with  config
 func Generate(c config) error {
-	c.apiPkgPath = c.Type.PkgPath() + "/" + c.apiPkgDir
+	c.apiPkgPath = c.ServiceType.PkgPath() + "/" + c.apiPkgDir
 
 	g := Generator{c: c}
 
@@ -65,7 +69,7 @@ func Generate(c config) error {
 		return err
 	}
 
-	pkg, stc := g.findNames()
+	pkg, stc := g.packageStruct()
 	g.data = data{
 		Package:    pkg,
 		Struct:     stc,
@@ -76,7 +80,7 @@ func Generate(c config) error {
 		ApiPkgPath: c.apiPkgPath,
 	}
 
-	if err := g.execTemplate(clientTemplate, c.apiPkgDir+"/api_gen.go"); err != nil {
+	if err := g.execTemplate(apiTemplate, c.apiPkgDir+"/api_gen.go"); err != nil {
 		return err
 	}
 
@@ -85,7 +89,7 @@ func Generate(c config) error {
 	}
 
 	fn := fmt.Sprintf("%s_gen.go", strings.ToLower(stc))
-	if err := g.execTemplate(serverTemplate, fn); err != nil {
+	if err := g.execTemplate(serviceTemplate, fn); err != nil {
 		return err
 	}
 
@@ -108,8 +112,7 @@ func (g *Generator) execTemplate(t *template.Template, fn string) error {
 }
 
 func (g *Generator) findMethods() ([]method, error) {
-	//v := reflect.ValueOf(g.c.Service)
-	v := reflect.New(g.c.Type)
+	v := reflect.New(g.c.ServiceType)
 	var ms []method
 	for i := 0; i < v.NumMethod(); i++ {
 		tm := v.Type().Method(i)
@@ -183,10 +186,9 @@ func (g *Generator) findErrors() ([]string, error) {
 	return es, nil
 }
 
-func (g *Generator) findNames() (string, string) {
-	typ := g.c.Type.String()
+func (g *Generator) packageStruct() (string, string) {
+	typ := g.c.ServiceType.String()
 	typ = removePointerPrefix(typ)
 	p := strings.Split(typ, ".")
-	// TODO sta ako nije len = 2
 	return p[0], p[1]
 }

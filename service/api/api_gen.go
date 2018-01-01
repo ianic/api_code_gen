@@ -5,6 +5,13 @@ import (
 	"encoding/json"
 )
 
+const (
+	MethodAdd       = "Add"
+	MethodCube      = "Cube"
+	MethodMultiply  = "Multiply"
+	MethodMultiply2 = "Multiply2"
+)
+
 type transport interface {
 	Call(string, []byte) ([]byte, error)
 	Close()
@@ -20,7 +27,7 @@ func NewClient(r transport) *Client {
 
 func (c *Client) Add(req TwoReq) (*OneRsp, error) {
 	rsp := new(OneRsp)
-	if err := c.call("Add", req, rsp); err != nil {
+	if err := c.call(MethodAdd, req, rsp); err != nil {
 		return nil, parseError(err)
 	}
 	return rsp, nil
@@ -28,7 +35,7 @@ func (c *Client) Add(req TwoReq) (*OneRsp, error) {
 
 func (c *Client) Cube(req int) (*int, error) {
 	rsp := new(int)
-	if err := c.call("Cube", req, rsp); err != nil {
+	if err := c.call(MethodCube, req, rsp); err != nil {
 		return nil, parseError(err)
 	}
 	return rsp, nil
@@ -36,7 +43,7 @@ func (c *Client) Cube(req int) (*int, error) {
 
 func (c *Client) Multiply(req TwoReq) (*OneRsp, error) {
 	rsp := new(OneRsp)
-	if err := c.call("Multiply", req, rsp); err != nil {
+	if err := c.call(MethodMultiply, req, rsp); err != nil {
 		return nil, parseError(err)
 	}
 	return rsp, nil
@@ -44,22 +51,22 @@ func (c *Client) Multiply(req TwoReq) (*OneRsp, error) {
 
 func (c *Client) Multiply2(req TwoReq) (*int, error) {
 	rsp := new(int)
-	if err := c.call("Multiply2", req, rsp); err != nil {
+	if err := c.call(MethodMultiply2, req, rsp); err != nil {
 		return nil, parseError(err)
 	}
 	return rsp, nil
 }
 
-func (c *Client) call(typ string, req, rsp interface{}) error {
-	reqBuf, err := json.Marshal(req)
+func (c *Client) call(method string, req, rsp interface{}) error {
+	reqBuf, err := Marshal(req)
 	if err != nil {
 		return err
 	}
-	rspBuf, err := c.t.Call(typ, reqBuf)
+	rspBuf, err := c.t.Call(method, reqBuf)
 	if err != nil {
 		return err
 	}
-	if err := json.Unmarshal(rspBuf, rsp); err != nil {
+	if err := Unmarshal(rspBuf, rsp); err != nil {
 		return err
 	}
 	return nil
@@ -80,4 +87,12 @@ func parseError(err error) error {
 		return ErrTransport
 	}
 	return err
+}
+
+func Marshal(v interface{}) ([]byte, error) {
+	return json.Marshal(v)
+}
+
+func Unmarshal(data []byte, v interface{}) error {
+	return json.Unmarshal(data, v)
 }
