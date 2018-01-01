@@ -7,10 +7,6 @@ package api
 
 import (
 	"encoding/json"
-
-{{- range .Imports }}
-  "{{ . }}"
-{{- end }}
 )
 
 type transport interface {

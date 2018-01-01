@@ -2,6 +2,7 @@ package service
 
 import "github.com/ianic/api_code_gen/service/api"
 
+//go:generate find . -type f -name "*_gen.go" -exec rm -f {} ;
 //go:generate go install github.com/ianic/api_code_gen/service/api
 //go:generate go run gen.go
 

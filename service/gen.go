@@ -35,10 +35,12 @@ func main() {
 //+   sve se moze napraviti kada dobijemo []bytes i method name
 //+ * izbaci null u drugom dijelu poruke
 //+   to je zasto sto se nil serijalizira
-// * parametar za lokaciju api paketa, ili konvencija oko toga
+//+ * parametar za lokaciju api paketa, ili konvencija oko toga
 //+ * razmisliti o redizajnu nsq-a
-// * ErrTransport ?
 //+ * omoguciti da metode imaju iste parametre
+
+// * ErrTransport ?
+//   kako razlikovati poruke na koje treba ovo ili ono
 
 // omoguciti da metode imaju builtin tipove za ulazne parametre
 //   vise njih koje onda zapakujem u jedan struc i posaljem
