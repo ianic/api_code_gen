@@ -41,7 +41,7 @@ func main() {
 //+ * razmisliti o redizajnu nsq-a
 //+ * omoguciti da metode imaju iste parametre
 
-// * ErrTransport ?
+//+ * ErrTransport ?
 //   kako razlikovati poruke na koje treba ovo ili ono
 // * retry ako druga strana nije ziva
 //   kako razlikovati transport errors od application

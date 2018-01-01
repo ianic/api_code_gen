@@ -18,7 +18,7 @@ const (
   transportRetries = {{.TransportRetries}}
 )
 
-// trasport specific errors
+// transport specific errors
 var (
   ErrTransportTimeout = errors.New("transport timeout")
   ErrTransport        = errors.New("transport error")
