@@ -16,11 +16,12 @@ import (
 )
 
 func main() {
-	c := gen.Config()
-	c.Type = reflect.TypeOf(service.Service{})
-	c.NsqTopic = "nsq_rr.req"
-	c.NsqTtl = 10
-	if err := gen.Generate(c); err != nil {
+	err := gen.Generate(gen.Config{
+		ServiceType: reflect.TypeOf(service.Service{}),
+		NsqTopic:    "nsq_rr.req",
+		NsqTtl:      16,
+	})
+	if err != nil {
 		log.Fatal(err)
 	}
 }
@@ -53,8 +54,8 @@ func main() {
 // commitaj promjene koje si napravio u svckit
 
 // * kako se prosljedjuju informacije u generator
-// * bolji naming Type bi mogao biti ServiceType
-//   sto je client, server, service
+//+ * bolji naming Type bi mogao biti ServiceType
+//+   sto je client, server, service
 //+ * mogu li izolirati serijalizaciju da je ima samo u api
 //+   da ovi koji su van api zovu Marshall i Unmarshall
 //+ * typ u service_gen zovi methodName

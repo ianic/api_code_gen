@@ -10,7 +10,7 @@ import (
 
 var (
 	topic = "nsq_rr.req"
-	ttl   = 10 * time.Second
+	ttl   = 16 * time.Second
 )
 
 func NewClient() *api.Client {

@@ -1,6 +1,7 @@
 package gen
 
 import (
+	"errors"
 	"fmt"
 	"go/importer"
 	"html/template"
@@ -11,7 +12,8 @@ import (
 	"strings"
 )
 
-type config struct {
+// Config generator configuration
+type Config struct {
 	ServiceType reflect.Type
 	NsqTopic    string
 	NsqTtl      int
@@ -20,14 +22,20 @@ type config struct {
 	apiPkgPath  string
 }
 
-// Config returns defalut config
-func Config() config {
-	return config{
-		NsqTopic:  "",
-		NsqTtl:    60,
-		apiPkgDir: "api",
-		nsqPkgDir: "api/nsq",
+func (c *Config) check() error {
+	if c.ServiceType == nil {
+		return errors.New("missing ServiceType attribute")
 	}
+	if c.NsqTopic == "" {
+		return errors.New("missing NsqToopic attribute")
+	}
+	if c.NsqTtl == 0 {
+		c.NsqTtl = 60
+	}
+	c.apiPkgDir = "api"
+	c.nsqPkgDir = "api/nsq"
+	c.apiPkgPath = c.ServiceType.PkgPath() + "/" + c.apiPkgDir
+	return nil
 }
 
 // data collects atributes for template execution
@@ -50,16 +58,18 @@ type method struct {
 
 // Generator code generator
 type Generator struct {
-	c    config
+	c    Config
 	data data
 }
 
 // Generate run generator with  config
-func Generate(c config) error {
-	c.apiPkgPath = c.ServiceType.PkgPath() + "/" + c.apiPkgDir
-
+func Generate(c Config) error {
+	// init
+	if err := c.check(); err != nil {
+		return err
+	}
 	g := Generator{c: c}
-
+	// collect data from genrator
 	ms, err := g.findMethods()
 	if err != nil {
 		return err
@@ -68,7 +78,6 @@ func Generate(c config) error {
 	if err != nil {
 		return err
 	}
-
 	pkg, stc := g.packageStruct()
 	g.data = data{
 		Package:    pkg,
@@ -79,15 +88,13 @@ func Generate(c config) error {
 		NsqTtl:     c.NsqTtl,
 		ApiPkgPath: c.apiPkgPath,
 	}
-
+	// execute templates
 	if err := g.execTemplate(apiTemplate, c.apiPkgDir+"/api_gen.go"); err != nil {
 		return err
 	}
-
 	if err := g.execTemplate(nsqTemplate, c.nsqPkgDir+"/nsq_gen.go"); err != nil {
 		return err
 	}
-
 	fn := fmt.Sprintf("%s_gen.go", strings.ToLower(stc))
 	if err := g.execTemplate(serviceTemplate, fn); err != nil {
 		return err
@@ -108,6 +115,7 @@ func (g *Generator) execTemplate(t *template.Template, fn string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("generated file %s\n", fn)
 	return nil
 }
 
