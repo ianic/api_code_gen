@@ -17,9 +17,10 @@ import (
 
 func main() {
 	err := gen.Generate(gen.Config{
-		ServiceType: reflect.TypeOf(service.Service{}),
-		NsqTopic:    "nsq_rr.req",
-		NsqTtl:      16,
+		ServiceType:      reflect.TypeOf(service.Service{}),
+		NsqTopic:         "nsq_rr.req",
+		TransportTimeout: 2,
+		TransportRetries: 128,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -42,11 +43,21 @@ func main() {
 
 // * ErrTransport ?
 //   kako razlikovati poruke na koje treba ovo ili ono
+// * retry ako druga strana nije ziva
+//   kako razlikovati transport errors od application
+//   fatal errors kada negdje pukne serijalizacija
+//   na trasport errors se ispalti ponavljati, na application nema ponavljanja (opet cu dobiti isto)
+//   prema tome ako je trasport error onda je ok da rpc layer sam ponovi
+// Svodim na slijedece:
+//   retry je zadaca rpc liba, moze mu se definirati koliko puta da ponavljanja
+//   sve transport error-e svodim na jedan ErrTransport
+//   aplikacija uvijek moze odluciti da na taj error napravi neku odluku, zna da je problem u komunikaciji
 
 // omoguciti da metode imaju builtin tipove za ulazne parametre
 //   vise njih koje onda zapakujem u jedan struc i posaljem
 // dignuti error ako config nije dobro postavljen, ako nesto fali
-//
+// za ovo vise ne mislim da je sjajna ideja, ne mogu ocitati nazive atibuta
+//   to je zapravo razlog da realizacija ne ide
 
 //+ dto paket ukljuciti u api
 //+   ne mora vise ici kao parametar

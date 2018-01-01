@@ -10,11 +10,20 @@ import (
 
 var (
 	topic = "nsq_rr.req"
-	ttl   = 16 * time.Second
+	ttl   = 2 * time.Second
 )
 
 func NewClient() *api.Client {
-	return api.NewClient(nsq.NewRpcTransport(topic, ttl))
+	return api.NewClient(
+		nsq.NewRpcTransport(
+			topic,
+			ttl,
+			&nsq.ErrorsMapping{
+				ErrStopped: api.ErrTransport,
+				ErrTimeout: api.ErrTransportTimeout,
+				ErrFatal:   api.ErrTransport,
+			},
+		))
 }
 
 type Closer interface {

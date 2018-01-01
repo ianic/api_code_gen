@@ -4,22 +4,23 @@ import (
 	"errors"
 	"fmt"
 	"go/importer"
-	"html/template"
 	"os"
 	"os/exec"
 	"path"
 	"reflect"
 	"strings"
+	"text/template"
 )
 
 // Config generator configuration
 type Config struct {
-	ServiceType reflect.Type
-	NsqTopic    string
-	NsqTtl      int
-	apiPkgDir   string
-	nsqPkgDir   string
-	apiPkgPath  string
+	ServiceType      reflect.Type
+	NsqTopic         string
+	TransportTimeout int
+	TransportRetries int
+	apiPkgDir        string
+	nsqPkgDir        string
+	apiPkgPath       string
 }
 
 func (c *Config) check() error {
@@ -27,10 +28,10 @@ func (c *Config) check() error {
 		return errors.New("missing ServiceType attribute")
 	}
 	if c.NsqTopic == "" {
-		return errors.New("missing NsqToopic attribute")
+		return errors.New("missing NsqTopic attribute")
 	}
-	if c.NsqTtl == 0 {
-		c.NsqTtl = 60
+	if c.TransportTimeout == 0 {
+		c.TransportTimeout = 60
 	}
 	c.apiPkgDir = "api"
 	c.nsqPkgDir = "api/nsq"
@@ -40,13 +41,14 @@ func (c *Config) check() error {
 
 // data collects atributes for template execution
 type data struct {
-	Package    string
-	Struct     string
-	Methods    []method
-	Errors     []string
-	NsqTopic   string
-	NsqTtl     int
-	ApiPkgPath string
+	Package          string
+	Struct           string
+	Methods          []method
+	Errors           []string
+	NsqTopic         string
+	NsqTtl           int
+	ApiPkgPath       string
+	TransportRetries int
 }
 
 type method struct {
@@ -80,13 +82,14 @@ func Generate(c Config) error {
 	}
 	pkg, stc := g.packageStruct()
 	g.data = data{
-		Package:    pkg,
-		Struct:     stc,
-		Methods:    ms,
-		Errors:     es,
-		NsqTopic:   c.NsqTopic,
-		NsqTtl:     c.NsqTtl,
-		ApiPkgPath: c.apiPkgPath,
+		Package:          pkg,
+		Struct:           stc,
+		Methods:          ms,
+		Errors:           es,
+		NsqTopic:         c.NsqTopic,
+		NsqTtl:           c.TransportTimeout,
+		ApiPkgPath:       c.apiPkgPath,
+		TransportRetries: c.TransportRetries,
 	}
 	// execute templates
 	if err := g.execTemplate(apiTemplate, c.apiPkgDir+"/api_gen.go"); err != nil {

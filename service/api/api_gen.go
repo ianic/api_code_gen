@@ -3,13 +3,22 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 )
 
+// method names constants
 const (
-	MethodAdd       = "Add"
-	MethodCube      = "Cube"
-	MethodMultiply  = "Multiply"
-	MethodMultiply2 = "Multiply2"
+	MethodAdd        = "Add"
+	MethodCube       = "Cube"
+	MethodMultiply   = "Multiply"
+	MethodMultiply2  = "Multiply2"
+	transportRetries = 128
+)
+
+// trasport specific errors
+var (
+	ErrTransportTimeout = errors.New("transport timeout")
+	ErrTransport        = errors.New("transport error")
 )
 
 type transport interface {
@@ -62,9 +71,22 @@ func (c *Client) call(method string, req, rsp interface{}) error {
 	if err != nil {
 		return err
 	}
-	rspBuf, err := c.t.Call(method, reqBuf)
-	if err != nil {
-		return err
+	var rspBuf []byte
+	retries := 0
+	for {
+		var err error
+		rspBuf, err = c.t.Call(method, reqBuf)
+		if err != nil {
+			if err == ErrTransportTimeout && retries < transportRetries {
+				retries++
+				continue
+			}
+			if err == ErrTransportTimeout {
+				return ErrTransport
+			}
+			return err
+		}
+		break
 	}
 	if err := Unmarshal(rspBuf, rsp); err != nil {
 		return err
@@ -83,8 +105,6 @@ func parseError(err error) error {
 	switch err.Error() {
 	case ErrOverflow.Error():
 		return ErrOverflow
-	case ErrTransport.Error():
-		return ErrTransport
 	}
 	return err
 }
