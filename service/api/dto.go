@@ -1,10 +1,10 @@
 package api
 
-import "errors"
+import "fmt"
 
 // application specific errors
 var (
-	ErrOverflow = errors.New("overflow")
+	ErrOverflow = fmt.Errorf("overflow")
 )
 
 type TwoReq struct {

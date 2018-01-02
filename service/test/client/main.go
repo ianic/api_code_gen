@@ -13,10 +13,9 @@ func main() {
 	log.Discard()
 
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	c := nsq.NewClient()
+	c := nsq.Client()
 	defer c.Close()
+	defer cancel()
 
 	add := func(x, y int) {
 		fmt.Printf("%d + %d = ", x, y)

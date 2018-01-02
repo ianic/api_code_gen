@@ -131,7 +131,7 @@ func (g *Generator) findMethods() ([]method, error) {
 		}
 		m := v.Method(i)
 
-		if m.Type().NumIn() != 1 &&
+		if m.Type().NumIn() != 2 &&
 			m.Type().NumOut() != 2 {
 			fmt.Printf("skipping method %s, unsupported signature\n", tm.Name)
 			continue
@@ -141,7 +141,7 @@ func (g *Generator) findMethods() ([]method, error) {
 			continue
 		}
 
-		in := m.Type().In(0).String()
+		in := m.Type().In(1).String()
 		out := m.Type().Out(0).String()
 
 		if isPointer(in) {
@@ -155,8 +155,8 @@ func (g *Generator) findMethods() ([]method, error) {
 
 		ms = append(ms, method{
 			Name:      tm.Name,
-			InWithPkg: m.Type().In(0).String(),
-			In:        removePackagePrefix(m.Type().In(0).String()),
+			InWithPkg: in,
+			In:        removePackagePrefix(in),
 			Out:       removePackagePrefix(removePointerPrefix(out)),
 		})
 	}

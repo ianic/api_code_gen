@@ -2,6 +2,8 @@
 package nsq
 
 import (
+	"context"
+
 	"github.com/ianic/api_code_gen/service/api"
 	"github.com/minus5/svckit/nsq"
 )
@@ -10,8 +12,8 @@ var (
 	topic = "nsq_rr.req"
 )
 
-func NewClient() *api.Client {
-	return api.NewClient(nsq.NewRpcTransport(topic))
+func Client() *api.Client {
+	return api.NewClient(nsq.RpcClient(topic))
 }
 
 type Closer interface {
@@ -19,9 +21,9 @@ type Closer interface {
 }
 
 type server interface {
-	Serve(typ string, req []byte) ([]byte, error)
+	Serve(ctx context.Context, typ string, req []byte) ([]byte, error)
 }
 
-func NewServer(srv server) Closer {
-	return nsq.RpcServe(topic, srv.Serve)
+func Server(ctx context.Context, srv server) Closer {
+	return nsq.RpcServer(ctx, topic, srv)
 }

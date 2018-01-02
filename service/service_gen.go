@@ -2,19 +2,20 @@
 package service
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/ianic/api_code_gen/service/api"
 )
 
-func (s *Service) Serve(method string, buf []byte) ([]byte, error) {
+func (s *Service) Serve(ctx context.Context, method string, buf []byte) ([]byte, error) {
 	switch method {
 	case api.MethodAdd:
 		var req api.TwoReq
 		if err := api.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
-		rsp, err := s.Add(req)
+		rsp, err := s.Add(ctx, req)
 		if err != nil {
 			return nil, err
 		}
@@ -24,7 +25,7 @@ func (s *Service) Serve(method string, buf []byte) ([]byte, error) {
 		if err := api.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
-		rsp, err := s.Cube(req)
+		rsp, err := s.Cube(ctx, req)
 		if err != nil {
 			return nil, err
 		}
@@ -34,7 +35,7 @@ func (s *Service) Serve(method string, buf []byte) ([]byte, error) {
 		if err := api.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
-		rsp, err := s.Multiply(req)
+		rsp, err := s.Multiply(ctx, req)
 		if err != nil {
 			return nil, err
 		}
@@ -44,7 +45,7 @@ func (s *Service) Serve(method string, buf []byte) ([]byte, error) {
 		if err := api.Unmarshal(buf, &req); err != nil {
 			return nil, err
 		}
-		rsp, err := s.Multiply2(req)
+		rsp, err := s.Multiply2(ctx, req)
 		if err != nil {
 			return nil, err
 		}
