@@ -136,7 +136,8 @@ func (g *Generator) findMethods() ([]method, error) {
 			fmt.Printf("skipping method %s, unsupported signature\n", tm.Name)
 			continue
 		}
-		if m.Type().Out(1).String() != "error" {
+		if m.Type().Out(1).String() != "error" ||
+			m.Type().In(0).String() != "context.Context" {
 			fmt.Printf("skipping method %s, unsupported signature\n", tm.Name)
 			continue
 		}
