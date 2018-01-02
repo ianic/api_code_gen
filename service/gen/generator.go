@@ -17,7 +17,6 @@ type Config struct {
 	ServiceType      reflect.Type
 	NsqTopic         string
 	TransportTimeout int
-	TransportRetries int
 	apiPkgDir        string
 	nsqPkgDir        string
 	apiPkgPath       string
@@ -41,14 +40,13 @@ func (c *Config) check() error {
 
 // data collects atributes for template execution
 type data struct {
-	Package          string
-	Struct           string
-	Methods          []method
-	Errors           []string
-	NsqTopic         string
-	NsqTtl           int
-	ApiPkgPath       string
-	TransportRetries int
+	Package    string
+	Struct     string
+	Methods    []method
+	Errors     []string
+	NsqTopic   string
+	Timeout    int
+	ApiPkgPath string
 }
 
 type method struct {
@@ -82,14 +80,13 @@ func Generate(c Config) error {
 	}
 	pkg, stc := g.packageStruct()
 	g.data = data{
-		Package:          pkg,
-		Struct:           stc,
-		Methods:          ms,
-		Errors:           es,
-		NsqTopic:         c.NsqTopic,
-		NsqTtl:           c.TransportTimeout,
-		ApiPkgPath:       c.apiPkgPath,
-		TransportRetries: c.TransportRetries,
+		Package:    pkg,
+		Struct:     stc,
+		Methods:    ms,
+		Errors:     es,
+		NsqTopic:   c.NsqTopic,
+		Timeout:    c.TransportTimeout,
+		ApiPkgPath: c.apiPkgPath,
 	}
 	// execute templates
 	if err := g.execTemplate(apiTemplate, c.apiPkgDir+"/api_gen.go"); err != nil {

@@ -2,19 +2,15 @@
 package nsq
 
 import (
-	"time"
-
 	"github.com/ianic/api_code_gen/service/api"
 	"github.com/minus5/svckit/nsq"
 )
 
 var (
 	topic = "nsq_rr.req"
-	ttl   = 2 * time.Second // TODO obrisati
 )
 
 func NewClient() *api.Client {
-	// TODO ovo je drugacije
 	return api.NewClient(nsq.NewRpcTransport(topic))
 }
 

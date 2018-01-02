@@ -12,12 +12,11 @@ import (
 
 // method names constants
 const (
-	MethodAdd        = "Add"
-	MethodCube       = "Cube"
-	MethodMultiply   = "Multiply"
-	MethodMultiply2  = "Multiply2"
-	transportRetries = 128 // TODO brisati
-	timeout          = 2 * time.Second
+	MethodAdd       = "Add"
+	MethodCube      = "Cube"
+	MethodMultiply  = "Multiply"
+	MethodMultiply2 = "Multiply2"
+	timeout         = 2 * time.Second
 )
 
 type transport interface {
@@ -111,5 +110,3 @@ func Marshal(v interface{}) ([]byte, error) {
 func Unmarshal(data []byte, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
-
-// TODO zapravo funkciju ParseTrasportError koja vrati inner error i ok

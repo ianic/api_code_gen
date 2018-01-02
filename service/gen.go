@@ -20,7 +20,6 @@ func main() {
 		ServiceType:      reflect.TypeOf(service.Service{}),
 		NsqTopic:         "nsq_rr.req",
 		TransportTimeout: 2,
-		TransportRetries: 128,
 	})
 	if err != nil {
 		log.Fatal(err)
