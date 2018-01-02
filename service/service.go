@@ -19,7 +19,7 @@ func New() *Service {
 func (s *Service) Add(ctx context.Context, req api.TwoReq) (*api.OneRsp, error) {
 	z := req.X + req.Y
 	if z > 128 {
-		return nil, api.ErrOverflow
+		return nil, api.Overflow
 	}
 	return &api.OneRsp{Z: z}, nil
 }
@@ -28,7 +28,7 @@ func (s *Service) Add(ctx context.Context, req api.TwoReq) (*api.OneRsp, error) 
 func (s *Service) Multiply(ctx context.Context, req api.TwoReq) (*api.OneRsp, error) {
 	z := req.X * req.Y
 	if z > 128 {
-		return nil, api.ErrOverflow
+		return nil, api.Overflow
 	}
 	return &api.OneRsp{Z: z}, nil
 }
@@ -37,7 +37,7 @@ func (s *Service) Multiply(ctx context.Context, req api.TwoReq) (*api.OneRsp, er
 func (s *Service) Multiply2(ctx context.Context, req api.TwoReq) (*int, error) {
 	z := req.X * req.Y
 	if z > 128 {
-		return nil, api.ErrOverflow
+		return nil, api.Overflow
 	}
 	return &z, nil
 }
@@ -46,7 +46,7 @@ func (s *Service) Multiply2(ctx context.Context, req api.TwoReq) (*int, error) {
 func (s *Service) Cube(ctx context.Context, x int) (*int, error) {
 	z := x * x
 	if z > 256 {
-		return nil, api.ErrOverflow
+		return nil, api.Overflow
 	}
 	return &z, nil
 }

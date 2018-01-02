@@ -185,9 +185,11 @@ func (g *Generator) findErrors() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, n := range pkg.Scope().Names() {
-		if strings.HasPrefix(n, "Err") {
-			//es = append(es, fmt.Sprintf("%s.%s", pkg.Name(), n))
+	s := pkg.Scope()
+	for _, n := range s.Names() {
+		o := s.Lookup(n)
+		if o.Type().String() == "error" {
+			fmt.Printf("found error %s\n", n)
 			es = append(es, n)
 		}
 	}

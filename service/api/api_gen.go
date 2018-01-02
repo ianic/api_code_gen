@@ -97,8 +97,8 @@ func toAppError(txt string) error {
 		return nil
 	}
 	switch txt {
-	case ErrOverflow.Error():
-		return ErrOverflow
+	case Overflow.Error():
+		return Overflow
 	}
 	return fmt.Errorf(txt)
 }

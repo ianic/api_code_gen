@@ -4,7 +4,7 @@ import "fmt"
 
 // application specific errors
 var (
-	ErrOverflow = fmt.Errorf("overflow")
+	Overflow = fmt.Errorf("overflow")
 )
 
 type TwoReq struct {

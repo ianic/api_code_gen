@@ -63,8 +63,8 @@ func showError(err error) {
 	if err == nil {
 		return
 	}
-	if err == api.ErrOverflow {
-		fmt.Printf("owerflow\n")
+	if err == api.Overflow {
+		fmt.Printf("%s\n", err)
 		return
 	}
 	if err == context.Canceled || err == context.DeadlineExceeded {
